@@ -63,6 +63,7 @@ class Demonstrate {
     // 收起所有节点
     // FIXME
     // this.mindMap.execCommand('UNEXPAND_ALL', false)
+    this.mindMap.execCommand('UNEXPAND_ALL', true)
     this.mindMap.execCommand('EXPAND_ALL')
     const onRenderEnd = () => {
       this.mindMap.off('node_tree_render_end', onRenderEnd)
