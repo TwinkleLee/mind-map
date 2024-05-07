@@ -59,14 +59,15 @@ class Demonstrate {
     // 计算步骤数据
     this.getStepList()
     // 收起所有节点
-    this.mindMap.execCommand('UNEXPAND_ALL', false)
-    const onRenderEnd = () => {
-      this.mindMap.off('node_tree_render_end', onRenderEnd)
+    // FIXME
+    // this.mindMap.execCommand('UNEXPAND_ALL', false)
+    // const onRenderEnd = () => {
+      // this.mindMap.off('node_tree_render_end', onRenderEnd)
       // 聚焦到第一步
       this.jump(this.currentStepIndex)
-      this.bindEvent()
-    }
-    this.mindMap.on('node_tree_render_end', onRenderEnd)
+      // this.bindEvent()
+    // }
+    // this.mindMap.on('node_tree_render_end', onRenderEnd)
   }
 
   // 退出演示模式
@@ -219,6 +220,18 @@ class Demonstrate {
       })
       return
     }
+
+    // FIXME 不要缩放画面
+    const rect = node.group.rbox()
+    console.log(rect)
+    this.updateHighlightEl({
+      left: -1,
+      top: -1,
+      width: window.screen.width,
+      height: window.screen.height
+    })
+
+    return
     // 1.聚焦到某个节点
     if (step.type === 'node') {
       // 适应画布大小

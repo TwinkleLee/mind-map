@@ -147,6 +147,8 @@ export default {
 }
 
 .stepBox {
+  display: none !important;//FIXME
+
   position: absolute;
   right: 40px;
   bottom: 20px;
