@@ -34,6 +34,8 @@ class Demonstrate {
 
   // 进入演示模式
   enter() {
+
+    console.log("enter", this.mindMap.getData().data.text)
     // 全屏
     this.bindFullscreenEvent()
     // 如果已经全屏了
@@ -61,13 +63,14 @@ class Demonstrate {
     // 收起所有节点
     // FIXME
     // this.mindMap.execCommand('UNEXPAND_ALL', false)
-    // const onRenderEnd = () => {
-      // this.mindMap.off('node_tree_render_end', onRenderEnd)
+    this.mindMap.execCommand('EXPAND_ALL')
+    const onRenderEnd = () => {
+      this.mindMap.off('node_tree_render_end', onRenderEnd)
       // 聚焦到第一步
       this.jump(this.currentStepIndex)
-      // this.bindEvent()
-    // }
-    // this.mindMap.on('node_tree_render_end', onRenderEnd)
+      this.bindEvent()
+    }
+    this.mindMap.on('node_tree_render_end', onRenderEnd)
   }
 
   // 退出演示模式
@@ -222,8 +225,6 @@ class Demonstrate {
     }
 
     // FIXME 不要缩放画面
-    const rect = node.group.rbox()
-    console.log(rect)
     this.updateHighlightEl({
       left: -1,
       top: -1,

@@ -68,7 +68,7 @@ export default {
       this.$nextTick(() => {
         const el = document.querySelector('#mindMapContainer')
         el.appendChild(this.$refs.exitDemonstrateBtnRef)
-        el.appendChild(this.$refs.stepBoxRef)
+        // el.appendChild(this.$refs.stepBoxRef) //FIXME 不再显示页码
       })
       this.mindMap.demonstrate.enter()
     },
@@ -86,6 +86,36 @@ export default {
     onJump(index, total) {
       this.curStepIndex = index
       this.totalStep = total
+
+      // highlightEl 蒙层出现,对其添加点击穿透
+      this.mindMap.demonstrate.highlightEl.style.cssText +=
+        'pointer-events:none;'
+
+      let initData = JSON.parse(JSON.stringify(this.mindMap.getData(), null, 2))
+
+      console.log('initData', initData.data.text)
+
+      //测试加一个小按钮
+      // initData.data.text = initData.data.text.replace(/\<u\>[\s\S]+\<\/u\>/g,`<div style="width:50px;border:1px solid #000;"></div>`)
+      // initData.data.text = initData.data.text.replace(/\<u\>[\s\S]+?\<\/u\>/g,`<div style="width:50px;border:1px solid #000;"></div>`)
+      let u_arr = initData.data.text.match(/\<u\>[\s\S]+?\<\/u\>/g)
+      console.log('u_arr', u_arr)
+      u_arr.forEach((u_item,u_index) => {
+        initData.data.text = initData.data.text.replace(
+          u_item,
+          `${u_item.substring(0, 2)} id="u_${u_index}" style="color:rgba(0,0,0,0);border-bottom: 2px solid #ccc;" ${u_item.substring(2)}`
+        )
+      })
+
+      this.$bus.$emit('setData', initData)
+
+      setTimeout(()=>{
+
+      let u_1 = document.getElementById("u_1")
+        console.log("u_1", u_1)
+      },500)
+
+      console.log('resData', initData.data.text)
     },
 
     prev() {
@@ -142,13 +172,12 @@ export default {
 
   .icon {
     font-size: 28px;
-    color: #fff;
+    // color: #fff;
+    color: #000; //FIXME
   }
 }
 
 .stepBox {
-  display: none !important;//FIXME
-
   position: absolute;
   right: 40px;
   bottom: 20px;
