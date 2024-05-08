@@ -41,8 +41,15 @@
     <div class="u_button_list" ref="u_button_list" v-if="isEnterDemonstrate">
       <button @click="uShowAll">全部显示</button>
       <button @click="uHideAll">全部隐藏</button>
-      <button @click="uHideCurrent" :disabled="u_custom_index==-1">上一个</button>
-      <button @click="uShowNext" :disabled="u_custom_index==u_custom_length-1">下一个</button>
+      <button @click="uHideCurrent" :disabled="u_custom_index == -1">
+        上一个
+      </button>
+      <button
+        @click="uShowNext"
+        :disabled="u_custom_index == u_custom_length - 1"
+      >
+        下一个
+      </button>
     </div>
   </div>
 </template>
@@ -64,6 +71,7 @@ export default {
       totalStep: 0,
       inputStep: '',
 
+      u_custom_color_array: [], //u元素备份颜色
       u_custom_length: 0,
       u_custom_index: -1
     }
@@ -105,42 +113,53 @@ export default {
 
       let initData = JSON.parse(JSON.stringify(this.mindMap.getData(), null, 2))
 
-      console.log('initData', initData)
+      // console.log('initData', initData)
       // console.log('initData', initData.data.text)
 
       let flat_initData = this.u2Flat([initData])
-      console.log('flat_initData', flat_initData)
+      // console.log('flat_initData', flat_initData)
 
-      let u_index = 0
+      this.u_custom_length = 0
       flat_initData.forEach(item => {
         // console.log(item.data.text)
         let temp_u_arr = item.data.text.match(/\<u[\s\S]+?\<\/u\>/g)
-        // console.log(temp_u_arr)
+        // console.log('temp_u_arr', temp_u_arr)
         if (temp_u_arr) {
           temp_u_arr.forEach(u_item => {
             let text_content = u_item.match(/^\<u[\s\S]+>([\s\S]+)\<\/u\>$/)
-            console.log("text_content",text_content)
+            // console.log('text_content', text_content)
 
             item.data.text = item.data.text.replace(
               u_item,
-              `${u_item.substring(
-                0,
-                2
-              )} data-custom-u-${u_index}  style="color:rgba(0,0,0,0);border-bottom: 2px solid #ccc;" ${u_item.substring(
-                2
-              )}`
+              `${u_item.substring(0, 2)} data-custom-u-${
+                this.u_custom_length
+              } ${u_item.substring(2)}`
             )
-            u_index++
+            // console.log('item.data.text', item.data.text)
+            this.u_custom_length++
           })
         }
       })
 
-      this.u_custom_length = u_index
+      this.u_custom_length = this.u_custom_length
       this.u_custom_index = -1
 
       this.$bus.$emit('setData', initData)
 
       // console.log('resData', initData.data.text)
+
+      setTimeout(() => {
+        for (let i = 0; i < this.u_custom_length; i++) {
+          let u_el = document.querySelector(`u[data-custom-u-${i}]`)
+          // console.log('u_el', u_el)
+          
+          // this.u_custom_color_array.push(u_el.style.color)
+          //获取实际颜色（可能是该元素直接指定的，也可能是继承的）
+          this.u_custom_color_array.push(window.getComputedStyle(u_el).getPropertyValue("color"))
+          u_el.style.color = 'rgba(0,0,0,0)'
+          u_el.style.borderBottom = `1px solid ${this.u_custom_color_array[i]}`
+        }
+      }, 100)
     },
 
     prev() {
@@ -172,16 +191,18 @@ export default {
     },
 
     uShowAll() {
-      for (let u_index = 0; u_index < this.u_custom_length; u_index++) {
-        let u_el = document.querySelector(`u[data-custom-u-${u_index}]`)
-        u_el.style.color = 'inherit'
+      for (let i = 0; i < this.u_custom_length; i++) {
+        let u_el = document.querySelector(`u[data-custom-u-${i}]`)
+        u_el.style.color = this.u_custom_color_array[i]
+        u_el.style.borderBottom = 'none'
       }
       this.u_custom_index = this.u_custom_length - 1
     },
     uHideAll() {
-      for (let u_index = 0; u_index < this.u_custom_length; u_index++) {
-        let u_el = document.querySelector(`u[data-custom-u-${u_index}]`)
+      for (let i = 0; i < this.u_custom_length; i++) {
+        let u_el = document.querySelector(`u[data-custom-u-${i}]`)
         u_el.style.color = 'rgba(0,0,0,0)'
+        u_el.style.borderBottom = `1px solid ${this.u_custom_color_array[this.u_custom_index]}`
       }
       this.u_custom_index = -1
     },
@@ -190,13 +211,16 @@ export default {
       let u_el = document.querySelector(
         `u[data-custom-u-${this.u_custom_index}]`
       )
-      u_el.style.color = 'inherit'
+      u_el.style.color = this.u_custom_color_array[this.u_custom_index]
+      u_el.style.borderBottom = 'none'
     },
     uHideCurrent() {
       let u_el = document.querySelector(
         `u[data-custom-u-${this.u_custom_index}]`
       )
       u_el.style.color = 'rgba(0,0,0,0)'
+      u_el.style.borderBottom = `1px solid ${this.u_custom_color_array[this.u_custom_index]}`
+
       this.u_custom_index--
     }
   }
